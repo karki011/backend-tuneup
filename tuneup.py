@@ -7,6 +7,7 @@ __author__ = "???"
 import cProfile
 import pstats
 import functools
+import timeit
 
 
 def profile(func):
@@ -46,6 +47,10 @@ def find_duplicate_movies(src):
 def timeit_helper():
     """Part A:  Obtain some profiling measurements using timeit"""
     # YOUR CODE GOES HERE
+    t = timeit.Timer(functools.partial(find_duplicate_movies, 'movies.txt'))
+    time_result = min(t.repeat(repeat=7, number=5))/5
+    print("Best time across 7 repeats of 5 runs per repeat:",
+          time_result, " seconds")
 
 
 def main():
