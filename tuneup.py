@@ -3,7 +3,7 @@
 """Tuneup assignment"""
 
 __author__ = "???"
-
+import io
 import cProfile
 import pstats
 import functools
@@ -15,7 +15,22 @@ def profile(func):
     # You need to understand how decorators are constructed and used.
     # Be sure to review the lesson material on decorators, they are used
     # extensively in Django and Flask.
-    raise NotImplementedError("Complete this decorator function")
+    # raise NotImplementedError("Complete this decorator function")
+    @functools.wraps(func)
+    def inner_function(*args, **kwargs):
+
+        pro_object = cProfile.Profile()
+        pro_object.enable()
+        result = func(*args, **kwargs)
+        pro_object.disable()
+        s = io.StringIO()
+        sortby = 'cumulative'
+        ps = pstats.Stats(pro_object, stream=s).strip_dirs().sort_stats(sortby)
+        ps.print_stats()
+        print(s.getvalue())
+
+        return result
+    return inner_function
 
 
 def read_movies(src):
@@ -33,14 +48,18 @@ def is_duplicate(title, movies):
     return False
 
 
+@profile
 def find_duplicate_movies(src):
     """Returns a list of duplicate movies from a src list"""
     movies = read_movies(src)
-    duplicates = []
-    while movies:
-        movie = movies.pop()
-        if is_duplicate(movie, movies):
-            duplicates.append(movie)
+    movies.sort()
+    # duplicates = []
+    # while movies:
+    #     movie = movies.pop()
+    #     if movie in movies:
+    #         duplicates.append(movie)
+    duplicates = [m1 for m1, m2 in zip(movies[1:], movies[:-1]) if m1 == m2]
+    print(duplicates)
     return duplicates
 
 
